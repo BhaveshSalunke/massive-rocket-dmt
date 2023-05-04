@@ -14,8 +14,7 @@ class UserController(@Autowired val userRepository: UserRepository) {
     @CrossOrigin(origins = ["http://localhost:3000/"])
     fun getAllUsers() = try {
         val existingUsers = userRepository.findAll()
-        if (existingUsers.isEmpty()) ResponseEntity(HttpStatus.NO_CONTENT)
-        else ResponseEntity.status(HttpStatus.OK).body(existingUsers)
+        ResponseEntity.status(HttpStatus.OK).body(existingUsers)
     } catch (e: Exception) {
         ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR)
     }
@@ -27,5 +26,11 @@ class UserController(@Autowired val userRepository: UserRepository) {
         ResponseEntity(userRepository.save(user), HttpStatus.CREATED)
     } catch (e :Exception) {
         ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+    @DeleteMapping("/delete-all")
+    fun deleteAll(): String {
+        userRepository.deleteAll()
+        return "All user entries deleted"
     }
 }
