@@ -6,19 +6,21 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface UserRepository : JpaRepository<User, Long> {
-    fun existsByEmail(email: String): Boolean
+    fun findUserByEmail(email: String): User?
 }
 
 @Table(name = "users")
 @Entity
-class User {
+class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
+    val id: Long? = null,
 
-    val firstName: String? = null
-    val lastName: String? = null
-    val phone: String? = null
-    val email: String? = null
+    val firstName: String,
+    val lastName: String,
+    val phone: String,
 
+    val email: String
+) {
+    constructor() : this(null, "", "", "", "")
 }

@@ -14,9 +14,18 @@ const Dashboard = () => {
         await api.get("/users")
             .then(function (response) {
                 const valuesArray = [];
-                console.log(response)
                 response.data.map(d => valuesArray.push([d.firstName,d.lastName,d.email, d.phone]))
-
+                setValues(valuesArray);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+    const getDuplicateUsers = async () => {
+        await api.get("/duplicate-users")
+            .then(function (response) {
+                const valuesArray = [];
+                response.data.map(d => valuesArray.push([d.firstName,d.lastName,d.email, d.phone]))
                 setValues(valuesArray);
             })
             .catch(function (error) {
@@ -44,7 +53,7 @@ const Dashboard = () => {
         })
       }
     })
-    await getUsers();
+        getDuplicateUsers();
 }
 
     return(
@@ -57,6 +66,16 @@ const Dashboard = () => {
                     accept=".csv"
                     id="file-upload"
                     onChange={handleFileUpload}
+                ></input>
+            </label> <br/>
+            <label className="dashboard__form">
+                Show Duplicates
+                <input
+                    type="button"
+                    name="file"
+                    id="file-upload"
+                    hidden={true}
+                    onClick={getDuplicateUsers}
                 ></input>
             </label>
 
