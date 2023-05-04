@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 class UserController(@Autowired val userRepository: UserRepository) {
-
+    var duplicate : Long = 0
     @GetMapping("/users")
     @CrossOrigin(origins = ["http://localhost:3000/"])
     fun getAllUsers() = try {
@@ -22,8 +22,10 @@ class UserController(@Autowired val userRepository: UserRepository) {
     @PostMapping("/users")
     @CrossOrigin(origins = ["http://localhost:3000/"])
     fun addUser(@RequestBody user: User) = try {
-        println(user)
+        val isUser = userRepository.existsByEmail(user.email!!)
+        if (!isUser)
         ResponseEntity(userRepository.save(user), HttpStatus.CREATED)
+        else this.duplicate += 1
     } catch (e :Exception) {
         ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR)
     }
@@ -33,4 +35,14 @@ class UserController(@Autowired val userRepository: UserRepository) {
         userRepository.deleteAll()
         return "All user entries deleted"
     }
+
+    @GetMapping("/duplicate-count")
+    fun getDuplicateCount(): Long {
+        return duplicate
+    }
+    @DeleteMapping("/duplicate-count")
+    fun deleteDuplicateCount() {
+        this.duplicate = 0
+    }
+
 }
