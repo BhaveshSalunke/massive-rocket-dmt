@@ -2,39 +2,38 @@ package com.example.service.service
 
 import com.example.service.repository.User
 import com.example.service.repository.UserRepository
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import com.fasterxml.jackson.dataformat.csv.CsvMapper
+import com.fasterxml.jackson.dataformat.csv.CsvParser
 import org.springframework.stereotype.Service
-import org.springframework.util.MultiValueMap
+import java.nio.file.Path
+
+const val BatchSize = 50000
 
 @Service
-class UserService(@Autowired val userRepository: UserRepository) {
+class UserService(val userRepository: UserRepository) {
+    private val mapper = CsvMapper().enable(CsvParser.Feature.SKIP_EMPTY_LINES)
+    private val userReader = mapper.readerFor(User::class.java).with(mapper.schemaFor(User::class.java).withHeader())
 
-    private var duplicateUsers = mutableListOf<User>()
+    fun process(filePath: Path) {
+        val reader = userReader.readValues<User>(filePath.toFile())
 
-    fun addDuplicateUsers(user: User): Boolean {
-        val existingUser = duplicateUsers.find{it.email == user.email}
-        return if (existingUser == null) duplicateUsers.add(user) else false
-    }
-
-    fun getDuplicateUsersCount(): Int = duplicateUsers.size
-
-    fun getDuplicateUsers(): MutableList<User> = duplicateUsers
-
-    fun deleteAllDuplicateUsers() = duplicateUsers.clear()
-    fun findAll(): MutableList<User> {
-        return userRepository.findAll()
-    }
-
-    fun save(user: User) {
-        if (userRepository.findUserByEmail(user.email) == null) {
-            userRepository.save(user)
+        val chunks = sequence {
+            while (reader.hasNext()) {
+                val chunk = mutableListOf<User>()
+                repeat(BatchSize) {
+                    chunk.add(reader.next())
+                    if (!reader.hasNext()) return@repeat
+                }
+                yieldAll(listOf(chunk))
+            }
         }
-        else {
-            addDuplicateUsers(user)
-        }
+
+        chunks.forEach { processUsers(it) }
+
+        filePath.toFile().delete()
     }
 
-
+    fun processUsers(users: List<User>) {
+        println("Processed ${users.size} users")
     }
+}
