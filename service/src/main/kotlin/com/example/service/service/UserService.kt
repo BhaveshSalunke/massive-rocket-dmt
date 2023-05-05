@@ -5,6 +5,7 @@ import com.example.service.repository.UserRepository
 import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvParser
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -14,10 +15,13 @@ import java.nio.file.Path
 const val BatchSize = 100000
 
 @Service
-class UserService(val userRepository: UserRepository) {
+class UserService(
+    private val userRepository: UserRepository,
+    dispatchers: CoroutineDispatcher = Dispatchers.Default
+) {
+    private val scope = CoroutineScope(dispatchers)
     private val mapper = CsvMapper().enable(CsvParser.Feature.SKIP_EMPTY_LINES)
     private val userReader = mapper.readerFor(User::class.java).with(mapper.schemaFor(User::class.java).withHeader())
-    private val scope = CoroutineScope(Dispatchers.Default)
 
     fun process(filePath: Path) = scope.launch {
         val reader = userReader.readValues<User>(filePath.toFile())
