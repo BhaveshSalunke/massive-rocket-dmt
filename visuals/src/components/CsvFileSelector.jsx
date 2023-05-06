@@ -1,7 +1,12 @@
 import {useState} from "react";
 
-export default function CsvUploader({displayState}) {
+export default function CsvFileSelector({displayState, submitFileSelector}) {
 	const [selectedFile, setSelectedFile] = useState();
+
+	function submitSelection() {
+		if (selectedFile) submitFileSelector(selectedFile)
+		closeDialog()
+	}
 
 	function closeDialog() {
 		setSelectedFile(null)
@@ -58,8 +63,8 @@ export default function CsvUploader({displayState}) {
 					</label>
 					<input type="file" id="file-input" className="hidden" accept=".csv" multiple={false} onChange={e => setSelectedFile(e.target.files[0])}/>
 				</div>
-				<div className="my-4 w-full text-ellipsis">{selectedFile ? <p>Selected file: {selectedFile.name}</p> : <p>No file selected</p>}</div>
-				<button className="w-full flex-1 bg-blue-500 px-6 py-3 text-white rounded-lg text-center font-semibold cursor-pointer">Upload</button>
+				<div className="my-6 w-full text-ellipsis">{selectedFile ? <p>Selected file: {selectedFile.name}</p> : <p>No file selected</p>}</div>
+				<button className="w-full flex-1 bg-blue-500 px-6 py-3 text-white rounded-lg text-center font-semibold cursor-pointer" onClick={submitSelection}>Upload</button>
 			</div>
 		</div>
 	);
