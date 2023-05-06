@@ -13,15 +13,18 @@ import java.util.*
 
 @Service
 class StatService(val statRepository: StatRepository) {
-    fun getStats(processId: UUID) = statRepository.findByProcessId(processId).reduce { a, b ->
-        Stat(
-            a.id,
-            a.processId,
-            a.batchId,
-            a.userCount + b.userCount,
-            a.duplicateCount + b.duplicateCount,
-            if (a.processStatus == PROCESSING || b.processStatus == PROCESSING) PROCESSING else COMPLETED
-        )
+    fun getStats(processId: UUID) = statRepository.findByProcessId(processId).run {
+        ifEmpty { return@run Stat(id = UUID.randomUUID(), processId = processId, batchId = UUID.randomUUID()) }
+        reduce { a, b ->
+            Stat(
+                a.id,
+                a.processId,
+                a.batchId,
+                a.userCount + b.userCount,
+                a.duplicateCount + b.duplicateCount,
+                if (a.processStatus == PROCESSING || b.processStatus == PROCESSING) PROCESSING else COMPLETED
+            )
+        }
     }
 }
 

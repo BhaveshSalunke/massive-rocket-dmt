@@ -1,7 +1,7 @@
-import {useState} from "react";
+import {useState} from "react"
 
 export default function CsvFileSelector({displayState, submitFileSelector}) {
-	const [selectedFile, setSelectedFile] = useState();
+	const [selectedFile, setSelectedFile] = useState()
 
 	function submitSelection() {
 		if (selectedFile) submitFileSelector(selectedFile)
@@ -14,27 +14,27 @@ export default function CsvFileSelector({displayState, submitFileSelector}) {
 	}
 
 	function handleDragOver(e) {
-		e.preventDefault();
-		e.stopPropagation();
+		e.preventDefault()
+		e.stopPropagation()
 	}
 
 	function handleDrop(e) {
-		e.preventDefault();
-		e.stopPropagation();
+		e.preventDefault()
+		e.stopPropagation()
 
-		const files = [...e.dataTransfer.files];
+		const files = [...e.dataTransfer.files]
 
 		if (files.length !== 1) {
-			console.log("Please select only one file at a time.");
-			return;
+			console.log("Please select only one file at a time.")
+			return
 		}
 
 		if (!files[0].name.toLowerCase().endsWith("csv")) {
-			console.log("Please select a csv file.");
-			return;
+			console.log("Please select a csv file.")
+			return
 		}
 
-		if (files && files.length) setSelectedFile(files[0]);
+		if (files && files.length) setSelectedFile(files[0])
 	}
 
 	if (!displayState[0]) return null
@@ -67,5 +67,5 @@ export default function CsvFileSelector({displayState, submitFileSelector}) {
 				<button className="w-full flex-1 bg-blue-500 px-6 py-3 text-white rounded-lg text-center font-semibold cursor-pointer" onClick={submitSelection}>Upload</button>
 			</div>
 		</div>
-	);
+	)
 }

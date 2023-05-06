@@ -1,5 +1,5 @@
-import {useEffect, useState} from "react";
-import {GetProcessStats} from "../api/getProcessStats";
+import {useEffect, useState} from "react"
+import {GetProcessStats} from "../../../api/getProcessStats"
 
 export default function ProcessStatChecker({processId, onProcessComplete}) {
 	const [isProcessing, setIsProcessing] = useState(true)
@@ -26,7 +26,7 @@ export default function ProcessStatChecker({processId, onProcessComplete}) {
 		<div className="fixed right-4 md:right-16 bottom-8">
 			<div className="bg-white border rounded-lg px-6 py-3 flex items-center space-x-4">
 				<div>
-					<svg className="animate-spin -ml-1 mr-3 h-8 w-8 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+					<svg className="animate-spin -ml-1 mr-1 h-8 w-8 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none"
 							 viewBox="0 0 24 24">
 						<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
 						<path className="opacity-75" fill="currentColor"
