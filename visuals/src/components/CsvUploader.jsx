@@ -3,6 +3,11 @@ import {useState} from "react";
 export default function CsvUploader({displayState}) {
 	const [selectedFile, setSelectedFile] = useState();
 
+	function closeDialog() {
+		setSelectedFile(null)
+		displayState[1](false)
+	}
+
 	function handleDragOver(e) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -31,10 +36,10 @@ export default function CsvUploader({displayState}) {
 
 	return (
 		<div className="fixed inset-0 flex justify-center items-center bg-stone-200 bg-opacity-50"
-				 onClick={() => displayState[1](false)}>
+				 onClick={closeDialog}>
 			<div className="rounded-lg bg-white p-6" onClick={(e) => e.stopPropagation()}>
 				<span className="flex justify-end text-stone-400"><button
-					onClick={() => displayState[1](false)}>X</button></span>
+					onClick={closeDialog}>X</button></span>
 				<div className="mt-6 w-[20em] h-[12em] border rounded-xl flex justify-center items-center"
 						 onDragOver={handleDragOver}
 						 onDrop={handleDrop}
@@ -53,7 +58,7 @@ export default function CsvUploader({displayState}) {
 					</label>
 					<input type="file" id="file-input" className="hidden" accept=".csv" multiple={false} onChange={e => setSelectedFile(e.target.files[0])}/>
 				</div>
-				<div className="my-4">{selectedFile ? <p>Uploading: {selectedFile.name}</p> : <p>No file selected</p>}</div>
+				<div className="my-4 w-full text-ellipsis">{selectedFile ? <p>Selected file: {selectedFile.name}</p> : <p>No file selected</p>}</div>
 				<button className="w-full flex-1 bg-blue-500 px-6 py-3 text-white rounded-lg text-center font-semibold cursor-pointer">Upload</button>
 			</div>
 		</div>
