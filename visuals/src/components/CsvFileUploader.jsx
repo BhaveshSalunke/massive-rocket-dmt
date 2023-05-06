@@ -6,16 +6,17 @@ export default function CsvFileUploader({file, onSuccess}) {
 
 	useEffect(() => {
 		setIsUploading(true)
-		return UploadUserDataFile(file, () => {
+		return UploadUserDataFile(file, async (response) => {
 			setIsUploading(false)
-			onSuccess()
+			const processId = (await response.json())["processId"]
+			onSuccess(processId)
 		})
 	}, [])
 
 	if (!isUploading) return null
 
 	return (
-		<div className="fixed right-16 bottom-8">
+		<div className="fixed right-4 md:right-16 bottom-8">
 			<div className="bg-white border rounded-lg px-6 py-3 flex items-center space-x-4">
 				<div>
 					<svg className="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

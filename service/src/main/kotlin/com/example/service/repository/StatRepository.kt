@@ -1,18 +1,15 @@
 package com.example.service.repository
 
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.Table
-import org.springframework.beans.factory.annotation.Autowired
+import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.*
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
-import java.util.UUID
-
+import java.util.*
 
 @Repository
-interface StatRepository: JpaRepository<Stat, UUID> {
-
+interface StatRepository : JpaRepository<Stat, UUID> {
+    fun findByProcessId(processId: UUID): List<Stat>
 }
 
 @Entity
@@ -20,16 +17,18 @@ interface StatRepository: JpaRepository<Stat, UUID> {
 class Stat(
     @Id
     val id: UUID = UUID.randomUUID(),
+
+    val processId: UUID,
+
+    @JsonIgnore
+    val batchId: UUID,
+
     var userCount: Long = 0,
-    var duplicateCount: Long = 0
-)
 
+    var duplicateCount: Long = 0,
 
-@Service
-class StatService(
-    @Autowired val statRepository: StatRepository) {
-
-    fun getAllStats(): MutableList<Stat> {
-        return statRepository.findAll()
-    }
+    @Enumerated(value = EnumType.STRING)
+    var processStatus: ProcessStatus = ProcessStatus.PROCESSING
+) {
+    enum class ProcessStatus { PROCESSING, COMPLETED }
 }

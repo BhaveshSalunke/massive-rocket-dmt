@@ -1,10 +1,17 @@
 import {useState} from "react";
 import CsvFileSelector from "../components/CsvFileSelector";
 import CsvFileUploader from "../components/CsvFileUploader";
+import ProcessStatChecker from "../components/ProcessStatChecker";
 
 export function UserDataUpload() {
 	const showFileUploader = useState(false)
 	const [selectedFile, setSelectedFile] = useState()
+	const [processId, setProcessId] = useState()
+
+	function onFileUploadSuccess(processId) {
+		setSelectedFile(undefined)
+		setProcessId(processId)
+	}
 
 	return (
 		<>
@@ -16,7 +23,11 @@ export function UserDataUpload() {
 				Upload CSV
 			</button>
 			<CsvFileSelector displayState={showFileUploader} submitFileSelector={setSelectedFile}/>
-			{selectedFile && <CsvFileUploader file={selectedFile} onSuccess={() => setSelectedFile(undefined)}/>}
+			{selectedFile && <CsvFileUploader file={selectedFile} onSuccess={onFileUploadSuccess}/>}
+			{processId && <ProcessStatChecker processId={processId} onProcessComplete={() => {
+				setProcessId(undefined)
+				console.log("processing finished")
+			}}/>}
 		</>
 	)
 }

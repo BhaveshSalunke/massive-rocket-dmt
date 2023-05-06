@@ -2,10 +2,10 @@ export function UploadUserDataFile(file, onSuccess) {
 	const formData = new FormData()
 	const controller = new AbortController()
 	formData.append("file", file)
-	fetch("/api/users/dataset", {
+	fetch("/api/process/dataset", {
 		method: "post",
 		body: formData,
 		signal: controller.signal
-	}).then(() => onSuccess())
+	}).then(onSuccess)
 	return () => controller.abort()
 }

@@ -21,6 +21,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("com.opencsv:opencsv:5.7.1")
+    implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.12.5")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0-RC")
 

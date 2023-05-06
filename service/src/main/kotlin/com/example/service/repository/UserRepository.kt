@@ -17,17 +17,31 @@ interface UserRepository : JpaRepository<User, UUID>
 @Entity
 @JsonPropertyOrder(value = ["firstName", "lastName", "email", "phone"])
 class User(
-    @Id
-    @JsonIgnore
-    val id: UUID = UUID.randomUUID(),
+    @Id @JsonIgnore val id: UUID = UUID.randomUUID(),
 
     val firstName: String = "",
 
     val lastName: String = "",
 
-    @Column(unique = true)
-    val email: String = "",
+    @Column(unique = true) val email: String = "",
 
-    @Column(unique = true)
-    val phone: String = "",
-)
+    @Column(unique = true) val phone: String = "",
+
+    @JsonIgnore val processId: UUID
+) {
+    fun copy(
+        id: UUID? = null,
+        firstName: String? = null,
+        lastName: String? = null,
+        email: String? = null,
+        phone: String? = null,
+        processId: UUID? = null
+    ) = User(
+        id ?: this.id,
+        firstName ?: this.firstName,
+        lastName ?: this.lastName,
+        email ?: this.email,
+        phone ?: this.phone,
+        processId ?: this.processId
+    )
+}

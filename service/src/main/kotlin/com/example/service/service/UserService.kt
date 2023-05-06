@@ -7,6 +7,7 @@ import com.example.service.repository.UserRepository
 import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvParser
+import jakarta.transaction.Transactional
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,9 +16,8 @@ import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.name
 
-const val BatchSize = 5
+const val BatchSize = 100000
 
 @Service
 class UserService(
@@ -26,16 +26,13 @@ class UserService(
     dispatchers: CoroutineDispatcher = Dispatchers.Default
 ) {
     private val scope = CoroutineScope(dispatchers)
-    private val mapper = CsvMapper().enable(CsvParser.Feature.SKIP_EMPTY_LINES).enable(CsvParser.Feature.TRIM_SPACES)
-    private val userReader = mapper.readerFor(User::class.java).with(mapper.schemaFor(User::class.java))
+    private val mapper = CsvMapper().enable(CsvParser.Feature.SKIP_EMPTY_LINES)
+    private val userReader = mapper.readerFor(User::class.java).with(mapper.schemaFor(User::class.java).withHeader())
 
-    fun process(filePath: Path) = scope.launch {
-        statRepository.deleteAll()
+    fun process(filePath: Path, processId: UUID) = scope.launch {
         val reader = userReader.readValues<User>(filePath.toFile())
-        val stats = Stat(id = UUID.fromString(filePath.fileName.name.removeSuffix(".csv")))
-        readUserChunks(reader).forEach { processUsers(it, stats) }
+        readUserChunks(reader).forEach { processUsers(it, processId) }
         filePath.toFile().delete()
-        statRepository.save(stats)
     }
 
     private fun readUserChunks(reader: MappingIterator<User>) = sequence {
@@ -49,17 +46,22 @@ class UserService(
         }
     }
 
-    private fun processUsers(users: List<User>, stat: Stat) {
-        var count = 0
-        users.forEach {
-            try {
-                userRepository.save(it)
-            } catch (_: DataIntegrityViolationException) {
-                count += 1
-            }
-        }
-        stat.userCount += users.size
-        stat.duplicateCount += count
+    @Transactional
+    fun processUsers(users: List<User>, processId: UUID) = scope.launch {
+        val batchId = UUID.randomUUID()
+        val stat = statRepository.save(Stat(processId = processId, batchId = batchId))
+        users.distinctBy { it.email }.distinctBy { it.phone }
+            .map { it.copy(id = UUID.randomUUID(), processId = processId) }
+            .forEach { it.save(stat) }
+        stat.userCount = users.size.toLong()
+        stat.processStatus = Stat.ProcessStatus.COMPLETED
+        statRepository.save(stat)
+    }
+
+    private fun User.save(stat: Stat) = try {
+        userRepository.save(this)
+    } catch (e: DataIntegrityViolationException) {
+        stat.duplicateCount += 1
     }
 
 }
