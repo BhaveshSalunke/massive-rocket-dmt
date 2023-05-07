@@ -40,18 +40,6 @@ export default function Core() {
 						{processData ? processData["duplicateCount"] : "-"}
 					</p>
 				</article>
-				<article className="">
-					<h3>Duplicate Users</h3>
-					<p className="mt-4 text-4xl">
-						{processData ? processData["duplicateCount"] : "-"}
-					</p>
-				</article>
-				<article className="">
-					<h3>Duplicate Users</h3>
-					<p className="mt-4 text-4xl">
-						{processData ? processData["duplicateCount"] : "-"}
-					</p>
-				</article>
 			</div>
 
 		</>)
